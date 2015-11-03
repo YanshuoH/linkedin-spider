@@ -1,0 +1,20 @@
+{
+  "name": "linkedin-spider",
+  "version": "1.0.0",
+  "description": "LinkedIn Spider for study purpose",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "linkedin",
+    "spider",
+    "study"
+  ],
+  "author": "Yanshuo HUANG",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^1.5.0",
+    "phantomjs": "^1.9.18"
+  }
+}
