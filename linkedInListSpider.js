@@ -8,7 +8,8 @@ var GoogleResultModel = require('./model/GoogleResult');
 var LinkedInResultModel = require('./model/LinkedInResult');
 
 GoogleResultModel.find({
-  status: 'NO'
+  status: 'NO',
+  parsed: 'NO'
 }).exec(function(err, googleResults) {
   if (err) {
     console.log(err);
@@ -21,7 +22,8 @@ GoogleResultModel.find({
           console.log('=========== Number ' + index + ' ===============');
           console.log('=========== ObjectId ' + objectId + ' ===============');
         });
-      } else if (googleResult.href.indexOf('linkedin.com/pub') > -1) {
+      } else if (googleResult.href.indexOf('linkedin.com/pub') > -1
+        || googleResult.href.indexOf('linkedin.com/in') > -1) {
         // Save to profil list
         var linkedInResult = new LinkedInResultModel({
           href: googleResult.href
@@ -32,6 +34,13 @@ GoogleResultModel.find({
           } else {
             console.log('=========== Number ' + (i + 1) + ' ===============');
             console.log('=========== ObjectId ' + googleResult.id + ' ===============');
+            googleResult.status = 'YES';
+            googleResult.parsed = 'YES';
+            googleResult.save(function(err) {
+              if (err) {
+                console.log(err);
+              }
+            });
           }
         });
       }
@@ -46,6 +55,12 @@ function linkedInListSpider(index, googleResult, next) {
     .build();
 
   driver.get(googleResult.href);
+  googleResult.parsed = 'YES';
+  googleResult.save(function(err) {
+    if (err) {
+      console.log(err);
+    }
+  });
   driver.findElements(By.css('.item-container h3.name a'))
     .then(function(elements) {
       for (var i = 0; i < elements.length; i ++) {
