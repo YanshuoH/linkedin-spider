@@ -1,0 +1,22 @@
+Fields doc
+
+Principle fields:
+* name: name
+* title: title
+* location: location
+* current: current job
+* previous: previous job(s)
+* education: education facility name
+* connections: connections count
+* backgroundStriped: A collection of data, includes: work experience, education, skills, languages etc.
+* href: url of profile
+
+Other fields:
+* backgroundSectionsHtml: Original HTML content for background
+* demographicsHtml: Original HTML content for demographics, the fields current/previous/education are extracted from this
+* extraInfoHtml: Original HTML content for title and location
+
+dev fields:
+* __v: version of document
+* _d: unique id in MongoDB
+* status: profile spider status
