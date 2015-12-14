@@ -10,8 +10,14 @@ var linkedInProfilSchema = new Schema({
   extraInfoHtml: { type: String },
   extraInfoStriped: { type: String },
   connections: { type: Number }, // .member-connections strong
-  backgroundStriped: { type: String }, // .background-content
+  backgroundStriped: [], // .background-content
   backgroundSectionsHtml: [],
+  location: { type: String },
+  industry: { type: String },
+  current: { type: String },
+  previous: { type: String },
+  education: { type: String },
+  status: { type: String, default: 'NO' },
 });
 
 module.exports = mongoose.model('LinkedInProfil', linkedInProfilSchema);
