@@ -1,4 +1,5 @@
 var async = require('async');
+var url = require('url');
 var cheerio = require('cheerio');
 var webdriver = require('selenium-webdriver');
 var By = require('selenium-webdriver').By;
@@ -16,24 +17,37 @@ var LinkedInProfilModel = require('./model/LinkedInProfil');
  * - Mark LinkedInResult document as STATUS = YES
  * - Retrieve next linkedInResult document
  */
-LinkedInResultModel.find({
-  status: 'NO'
-}).limit(10643).exec(function (err, linkedInResults) {
-  if (err) {
-    console.log(err);
-  } else {
-    for (var i = 0; i < linkedInResults.length; i ++) {
-      var linkedInResult = linkedInResults[i];
-      parseBySelenium(linkedInResult);
+var findOne = function() {
+  LinkedInResultModel.find({
+    status: 'NO'
+  }).limit(1).exec(function(err, linkedInResults) {
+    if (err) {
+      console.log(err);
+    } else {
+      for (var i = 0; i < linkedInResults.length; i ++) {
+        var linkedInResult = linkedInResults[i];
+        parseBySelenium(linkedInResult);
+      }
     }
-  }
-});
+  });
+}
+
+findOne();
 
 var parseBySelenium = function (linkedInResult) {
   var driver = new webdriver.Builder()
     .withCapabilities(webdriver.Capabilities.chrome())
     .build();
-  driver.get(linkedInResult.href + '/?trk=seokp-title_posts_secondary_cluster_res_author_name');
+
+  var baseLink = linkedInResult.href;
+  var link = baseLink;
+  var linkParsed = url.parse(link);
+  if (linkParsed.search !== null && linkParsed.search.indexOf('trk=') > -1) {
+    link = link.replace(linkParsed.search, '') + '/zh' + linkParsed.search
+  } else if (linkParsed.search === null) {
+    link += '/zh' + '?trk=seokp-title_posts_secondary_cluster_res_author_name';
+  }
+  driver.get(link);
 
   // name
   var nameQueryString = '#name';
@@ -48,7 +62,6 @@ var parseBySelenium = function (linkedInResult) {
     .then(function(bodyElement) {
       bodyElement.getInnerHtml()
         .then(function(bodyElement) {
-          fuck
           $ = cheerio.load(bodyElement, {decodeEntities: false});
 
           var data = {
@@ -81,16 +94,26 @@ var parseBySelenium = function (linkedInResult) {
 
           data.backgroundSectionsHtml = validSections;
 
+          linkedInResult.status = 'YES';
+          linkedInResult.save(function(err) {
+            console.log(err);
+          });
+
           var profil = new LinkedInProfilModel(data);
           profil.save(function(err) {
             if (err) {
               console.log(err);
+              profil.name = 'name_blank_holder';
+              profil.status = 'PENDING';
+              profil.save(function(err) {
+                if (err) {
+                  console.log(err);
+                }
+                findOne();
+              });
             } else {
               console.log(data.name + ' saved.');
-              linkedInResult.status = 'YES';
-              linkedInResult.save(function(err) {
-                console.log(err);
-              });
+              findOne();
             }
           })
         });
