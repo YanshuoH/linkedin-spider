@@ -1,6 +1,6 @@
 var Lbl = require('line-by-line');
 var parameters = require('./parameters');
-var lr = new Lbl('./google_title_search_href_result');
+var lr = new Lbl('./google_results/tech_service_google.txt');
 
 var mongoose = require('mongoose');
 mongoose.connect(parameters.mongoUri);
